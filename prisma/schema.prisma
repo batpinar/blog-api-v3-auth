@@ -21,6 +21,7 @@ model Category {
 model Post {
   id           Int       @id @default(autoincrement())
   category_id  Int
+  user_id      Int
   title        String
   content      String
   created_at   DateTime  @default(now())
@@ -29,6 +30,7 @@ model Post {
 
   category     Category  @relation(fields: [category_id], references: [id])
   comments     Comment[]
+  user         User      @relation(fields: [user_id], references: [id])
   tags         PostTag[]
 
   @@map("posts") // PostgreSQL'de çoğul snake_case
@@ -37,10 +39,12 @@ model Post {
 model Comment {
   id             Int      @id @default(autoincrement())
   post_id        Int
+  user_id        Int
   content        String
   commenter_name String
   created_at     DateTime @default(now())
 
+  user           User     @relation(fields: [user_id], references: [id])
   post           Post     @relation(fields: [post_id], references: [id])
 
   @@map("comments") // PostgreSQL'de çoğul snake_case
@@ -84,6 +88,8 @@ model User {
   updated_at DateTime? 
   deleted_at DateTime?
 
+  comments     Comment[]
+  posts           Post[]
   refresh_tokens RefreshToken[]
 
   @@map("users")

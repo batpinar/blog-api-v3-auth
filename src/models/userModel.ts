@@ -5,10 +5,9 @@ import { SHOW_DELETED_OPTIONS } from '../constants.js';
 import  prisma from '../config/database.js';
 
 export const createUser =  (input: RegisterInput, currentUser: { id: number; role: UserRole }) => {
-    // if(currentUser.role !== 'ADMIN'){
-    //     throw new Error('Forbidden');
-    // }
-    const hashedPassword =  hash(input.password);
+    if(currentUser.role !== 'ADMIN'){
+        throw new Error('Forbidden');
+    }
     return hash(input.password).then(hashedPassword => {
         return prisma.user.create({
             data: {
@@ -20,7 +19,7 @@ export const createUser =  (input: RegisterInput, currentUser: { id: number; rol
     });
 };
 
-export const getAllUsers =  (showDeleted: string ) => { 
+export const getAllUsers =  (showDeleted: string) => { 
     return prisma.user.findMany(
         {
         where:
@@ -34,15 +33,15 @@ export const getAllUsers =  (showDeleted: string ) => {
 };
 
 export const getUserById =  (id: number) => {
-    // if(currentUser.role !== 'ADMIN'){
-    //     throw new Error('Forbidden');
-    // }
     return prisma.user.findUnique({
         where: { id }
     });
 };
 
 export const updateUser = (id: number, data: UpdateUserInput, currentUser: { id: number; role: UserRole }) => {
+    if(currentUser.role !== 'ADMIN' && currentUser.role !== 'MEMBER'){
+        throw new Error('Forbidden');
+    }
     const updateData = { ...data };
     if (data.password) {
         return hash(data.password).then(hashedPassword => {
@@ -60,7 +59,7 @@ export const updateUser = (id: number, data: UpdateUserInput, currentUser: { id:
 };
 
 export const deleteUser = async (id: number, currentUser: { id: number; role: UserRole }) => {
-    if(currentUser.role !== 'ADMIN'){
+    if(currentUser.role !== 'ADMIN' && currentUser.role !== 'MEMBER'){
         throw new Error('Forbidden');
     }
     return prisma.user.update({

@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { getAllUsers, getUserById, createUser, updateUser, deleteUser } from '../models/userModel.js';
 import { updateUserSchema, registerSchema } from '../validations/auth.user.validation.js';
-import { number } from 'zod';
 
 export const listUser = async (req: Request, res: Response) => {
   try {

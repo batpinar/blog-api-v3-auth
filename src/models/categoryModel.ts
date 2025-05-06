@@ -1,5 +1,6 @@
 import prisma from '../config/database.js';
 import { SHOW_DELETED_OPTIONS } from '../constants.js';
+import { PrismaClient, UserRole } from '@prisma/client';
 
 /**
  * Tüm kategorileri getirir, silinmişleri dahil etmek için filtre uygular
@@ -27,7 +28,10 @@ export const getCategoryById =  (id: number) => {
 /**
  * Yeni bir kategori oluşturur
  */
-export const createCategory =  (data: { name: string }) => {
+export const createCategory =  (data: { name: string }, currentUser: { id: number; role: UserRole } ) => {
+    if(currentUser.role !== 'ADMIN'){
+        throw new Error('Forbidden');
+    }
     return  prisma.category.create({
         data,
     });
@@ -36,7 +40,10 @@ export const createCategory =  (data: { name: string }) => {
 /**
  * Belirli bir kategoriyi günceller
  */
-export const updateCategory =  (id: number, data: { name: string }) => {
+export const updateCategory =  (id: number, data: { name: string }, currentUser: { id: number; role: UserRole } ) => {
+    if(currentUser.role !== 'ADMIN'){
+        throw new Error('Forbidden');
+    }
     return  prisma.category.update({
         where: { id },
         data,
@@ -46,7 +53,10 @@ export const updateCategory =  (id: number, data: { name: string }) => {
 /**
  * Belirli bir kategoriyi soft delete olarak işaretler
  */
-export const deleteCategory =  (id: number) => {
+export const deleteCategory =  (id: number, currentUser: { id: number; role: UserRole } ) => {
+    if(currentUser.role !== 'ADMIN'){
+        throw new Error('Forbidden');
+    }
     return  prisma.category.update({
         where: { id },
         data: { deleted_at: new Date() },
