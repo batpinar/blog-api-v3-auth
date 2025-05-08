@@ -3,7 +3,7 @@ import { getAllComments, getCommentById, createComment, updateComment, deleteCom
 
 export const listComments = async (req: Request, res: Response) => {
     try {
-        const {commenter, post} = req.query
+        const { commenter, post } = req.query
         const dbData = await getAllComments(commenter as string, Number(post));
         res.json(dbData);
     } catch (error) {
@@ -29,7 +29,7 @@ export const getComment = async (req: Request, res: Response) => {
 
 export const addComment = async (req: Request, res: Response) => {
     try {
-        const newData =  await createComment(req.body)
+        const newData = await createComment(req.body, { id: 1, role: 'ADMIN' })
         res.status(202).json(newData);
     } catch (error) {
         console.log(error);
@@ -37,10 +37,10 @@ export const addComment = async (req: Request, res: Response) => {
     }
 }
 
-export const editComment = async (req:Request, res:Response) =>{
+export const editComment = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-        const updateData = await updateComment(Number(id), req.body)
+        const updateData = await updateComment(Number(id), req.body, { id: 1, role: 'ADMIN' })
         res.json(updateData)
     } catch (error) {
         console.log(error);
@@ -49,9 +49,9 @@ export const editComment = async (req:Request, res:Response) =>{
 }
 
 export const removeComment = async (req: Request, res: Response) => {
-    const {id} = req.params
+    const { id } = req.params
     try {
-        const deleteData = await deleteComment(Number(id));
+        const deleteData = await deleteComment(Number(id), { id: 1, role: 'ADMIN' });
         res.json(deleteData)
     } catch (error) {
         console.log(error);

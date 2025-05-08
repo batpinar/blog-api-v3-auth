@@ -29,7 +29,7 @@ export const getTag = async (req: Request, res: Response) => {
 
 export const addTag = async (req: Request, res: Response) => {
     try {
-        const newData =  await createTag(req.body)
+        const newData =  await createTag(req.body, { id: 1, role: 'ADMIN' });
         res.status(202).json(newData);
     } catch (error) {
         console.log(error);
@@ -40,7 +40,7 @@ export const addTag = async (req: Request, res: Response) => {
 export const editTag = async (req:Request, res:Response) =>{
     const { id } = req.params;
     try {
-        const updateData = await updateTag(Number(id), req.body)
+        const updateData = await updateTag(Number(id), req.body, { id: 1, role: 'ADMIN' })
         res.json(updateData)
     } catch (error) {
         console.log(error);
@@ -51,7 +51,7 @@ export const editTag = async (req:Request, res:Response) =>{
 export const removeTag = async (req: Request, res: Response) => {
     const {id} = req.params
     try {
-        const deleteData = await deleteTag(Number(id));
+        const deleteData = await deleteTag(Number(id), { id: 1, role: 'ADMIN' });
         res.json(deleteData)
     } catch (error) {
         console.log(error);

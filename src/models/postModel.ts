@@ -1,5 +1,6 @@
 import prisma from '../config/database.js';
 import { SHOW_DELETED_OPTIONS, POST_STATUS } from '../constants.js';
+import { PrismaClient, UserRole } from '@prisma/client';
 
 export const getAllPosts = (showDeleted?: string, status?: string, category?: number, tags?: string) => {
     const queryList: any[] = []
@@ -37,20 +38,31 @@ export const getPostById =  (id: number) => {
     });
 };
 
-export const createPost =  (data: { category_id: number, title: string, content: string, published_at?: Date }) => {
+export const createPost =  (data: { category_id: number, user_id: number, title: string, content: string, published_at?: Date }, currentUser: { id: number; role: UserRole }) => {
+    if (!currentUser) {
+        throw new Error('Unauthorized');
+    }
     return  prisma.post.create({
         data,
     });
 };
 
-export const updatePost =  (id: number, data: { title?: string, content?: string, published_at?: Date }) => {
+export const updatePost = async  (id: number, data: { user_id: number, title?: string, content?: string, published_at?: Date }, currentUser: { id: number; role: UserRole }) => {
+    const post = await  prisma.post.findUnique({ where: { id } });
+    if (currentUser.id !==  post?.user_id && currentUser.role !== 'ADMIN' && currentUser.role !== 'MODERATOR') {
+        throw new Error('Forbidden');
+    }
     return  prisma.post.update({
         where: { id },
         data,
     });
 };
 
-export const deletePost =  (id: number) => {
+export const deletePost = async  (id: number, currentUser: { id: number; role: UserRole }) => {
+    const post = await  prisma.post.findUnique({ where: { id } }); 
+    if (currentUser.id !==  post?.user_id && currentUser.role !== 'ADMIN') {
+        throw new Error('Forbidden');
+    }
     return  prisma.post.update({
         where: { id },
         data: { deleted_at: new Date() }

@@ -29,7 +29,7 @@ export const getCategory = async (req: Request, res: Response) => {
 
 export const addCategory = async (req: Request, res: Response) => {
     try {
-        const newData =  await createCategory(req.body)
+        const newData = await createCategory(req.body, { id: 1, role: 'ADMIN' }) // Assuming currentUser is passed as { id: 1, role: 'ADMIN' }
         res.status(202).json(newData);
     } catch (error) {
         console.log(error);
@@ -37,10 +37,10 @@ export const addCategory = async (req: Request, res: Response) => {
     }
 }
 
-export const editCategory = async (req:Request, res:Response) =>{
+export const editCategory = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-        const updateData = await updateCategory(Number(id), req.body)
+        const updateData = await updateCategory(Number(id), req.body, { id: 1, role: 'ADMIN' }) // Assuming currentUser is passed as { id: 1, role: 'ADMIN' }
         res.json(updateData)
     } catch (error) {
         console.log(error);
@@ -49,9 +49,9 @@ export const editCategory = async (req:Request, res:Response) =>{
 }
 
 export const removeCategory = async (req: Request, res: Response) => {
-    const {id} = req.params
+    const { id } = req.params
     try {
-        const deleteData = await deleteCategory(Number(id));
+        const deleteData = await deleteCategory(Number(id), { id: 1, role: 'ADMIN' }); // Assuming currentUser is passed as { id: 1, role: 'ADMIN' }
         res.json(deleteData)
     } catch (error) {
         console.log(error);

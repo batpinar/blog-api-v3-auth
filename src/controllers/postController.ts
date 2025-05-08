@@ -30,9 +30,13 @@ export const getPost = async (req: Request, res: Response) => {
     }
 }
 
-export const addPost = async (req: Request, res: Response) => {
+export const addPost = async (req: Request, res: Response): Promise<void> => {
     try {
-        const newData = await createPost(req.body)
+        if (!req.user) {
+             res.status(401).json({ message: "Unauthorized" });
+             return;
+        }
+        const newData = await createPost(req.body, req.user);
         res.status(202).json(newData);
     } catch (error) {
         console.log(error);
@@ -40,10 +44,14 @@ export const addPost = async (req: Request, res: Response) => {
     }
 }
 
-export const editPost = async (req: Request, res: Response) => {
+export const editPost = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     try {
-        const updateData = await updatePost(Number(id), req.body)
+        if (!req.user) {
+             res.status(401).json({ message: "Unauthorized" });
+             return;
+        }
+        const updateData = await updatePost(Number(id), req.body, req.user);
         res.json(updateData)
     } catch (error) {
         console.log(error);
@@ -51,10 +59,14 @@ export const editPost = async (req: Request, res: Response) => {
     }
 }
 
-export const removePost = async (req: Request, res: Response) => {
+export const removePost = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params
     try {
-        const deleteData = await deletePost(Number(id));
+        if (!req.user) {
+             res.status(401).json({ message: "Unauthorized" });
+             return;
+        }
+        const deleteData = await deletePost(Number(id, ), req.user);
         res.json(deleteData)
     } catch (error) {
         console.log(error);
@@ -66,7 +78,7 @@ export const addPostTag = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { tag_id } = req.body;
     try {
-        const newPostTag = await createPostTag(Number(id), Number(tag_id));
+        const newPostTag = await createPostTag(Number(id), Number(tag_id),{ id: 1, role: 'ADMIN' });
         res.status(201).json(newPostTag);
     } catch (error) {
         console.log(error);
@@ -78,7 +90,7 @@ export const removePostTag = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { tag_id } = req.body;
     try {
-        const deletedPostTag = await deletePostTag(Number(id), Number(tag_id));
+        const deletedPostTag = await deletePostTag(Number(id), Number(tag_id), { id: 1, role: 'ADMIN' });
         res.status(200).json(deletedPostTag);
     } catch (error) {
         console.log(error);
