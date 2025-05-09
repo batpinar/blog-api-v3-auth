@@ -5,6 +5,7 @@ import postRoutes from './routes/postRoutes.js'
 import commentRoutes from './routes/commentRoutes.js'
 import tagRoutes from './routes/tagRoutes.js'
 import userRoutes from './routes/userRoutes.js'
+import authRoutes from './routes/authRoutes.js'
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes)
 app.use('/api/tags', tagRoutes)
 app.use('/api/users', userRoutes)
+app.use('/api/auth', authRoutes)
 //http://localhost:3001/api/users
 // {"username": "admin", "password": "123456", "email": "}
 
