@@ -15,7 +15,7 @@ export const getCommentById = (id: number) => {
     });
 }
 
-export const createComment = (data: { post_id: number, commenter_name: string, content: string }, currentUser: { id: number, role: UserRole }) => {
+export const createComment = (data: { post_id: number, commenter_name: string, content: string, user_id: number }, currentUser: { id: number, role: UserRole }) => {
     if (!currentUser) {
         throw new Error('Unauthorized');
     }
@@ -70,9 +70,9 @@ export const deleteComment = async (id: number, currentUser: { id: number, role:
     const isCommenter = commentItem.user_id === currentUser.id;
     const isPostOwner = commentItem.post.user_id === currentUser.id;
     const isAdminOrModerator = currentUser.role === 'ADMIN' || currentUser.role === 'MODERATOR';
-    if (!isCommenter && !isPostOwner && !isAdminOrModerator) {
+    if (isCommenter || !isPostOwner || isAdminOrModerator) {
         return prisma.comment.delete({
-            where: { id },
+            where: { id }
         });
     } else {
         throw new Error('Forbidden');

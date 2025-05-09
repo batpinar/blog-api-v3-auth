@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { getAllCategories, getCategoryById, createCategory, updateCategory, deleteCategory } from "../models/categoryModel.js";
+import { UserRole } from "@prisma/client";
+import { checkUserRole } from "../utils/userRoleCheck.js";
 
 export const listCategories = async (req: Request, res: Response) => {
     try {
@@ -27,9 +29,14 @@ export const getCategory = async (req: Request, res: Response) => {
     }
 }
 
-export const addCategory = async (req: Request, res: Response) => {
+export const addCategory = async (req: Request, res: Response): Promise<void> => {
     try {
-        const newData = await createCategory(req.body, { id: 1, role: 'ADMIN' }) // Assuming currentUser is passed as { id: 1, role: 'ADMIN' }
+        const userRole = checkUserRole(req, res);
+        if (!userRole) {
+            res.status(403).json({ message: "Yetkisiz işlem" });
+            return;
+        }
+        const newData = await createCategory(req.body, userRole) 
         res.status(202).json(newData);
     } catch (error) {
         console.log(error);
@@ -37,10 +44,15 @@ export const addCategory = async (req: Request, res: Response) => {
     }
 }
 
-export const editCategory = async (req: Request, res: Response) => {
+export const editCategory = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     try {
-        const updateData = await updateCategory(Number(id), req.body, { id: 1, role: 'ADMIN' }) // Assuming currentUser is passed as { id: 1, role: 'ADMIN' }
+        const userRole = checkUserRole(req, res);
+        if (!userRole) {
+            res.status(403).json({ message: "Yetkisiz işlem" });
+            return;
+        }
+        const updateData = await updateCategory(Number(id), req.body, userRole) // Assuming currentUser is passed as { id: 1, role: 'ADMIN' }
         res.json(updateData)
     } catch (error) {
         console.log(error);
@@ -48,10 +60,15 @@ export const editCategory = async (req: Request, res: Response) => {
     }
 }
 
-export const removeCategory = async (req: Request, res: Response) => {
+export const removeCategory = async (req: Request, res: Response) : Promise<void> => {
     const { id } = req.params
     try {
-        const deleteData = await deleteCategory(Number(id), { id: 1, role: 'ADMIN' }); // Assuming currentUser is passed as { id: 1, role: 'ADMIN' }
+        const userRole = checkUserRole(req, res);
+        if (!userRole) {
+             res.status(403).json({ message: "Yetkisiz işlem" });
+             return;
+        }
+        const deleteData = await deleteCategory(Number(id), userRole); // Assuming currentUser is passed as { id: 1, role: 'ADMIN' }
         res.json(deleteData)
     } catch (error) {
         console.log(error);

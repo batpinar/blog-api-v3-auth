@@ -33,7 +33,8 @@ export const getPost = async (req: Request, res: Response) => {
 export const addPost = async (req: Request, res: Response): Promise<void> => {
     try {
         if (!req.user) {
-             res.status(401).json({ message: "Unauthorized" });
+            console.log("Kullanıcı:", req.user);
+             res.status(401).json({ message: "Unauthorized!!!" });
              return;
         }
         const newData = await createPost(req.body, req.user);
@@ -78,7 +79,11 @@ export const addPostTag = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { tag_id } = req.body;
     try {
-        const newPostTag = await createPostTag(Number(id), Number(tag_id),{ id: 1, role: 'ADMIN' });
+        if (!req.user) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+       }
+        const newPostTag = await createPostTag(Number(id), Number(tag_id), req.user);
         res.status(201).json(newPostTag);
     } catch (error) {
         console.log(error);
@@ -90,7 +95,11 @@ export const removePostTag = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { tag_id } = req.body;
     try {
-        const deletedPostTag = await deletePostTag(Number(id), Number(tag_id), { id: 1, role: 'ADMIN' });
+        if (!req.user) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+       }
+        const deletedPostTag = await deletePostTag(Number(id), Number(tag_id), req.user);
         res.status(200).json(deletedPostTag);
     } catch (error) {
         console.log(error);

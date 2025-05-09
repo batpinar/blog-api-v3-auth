@@ -27,9 +27,14 @@ export const getComment = async (req: Request, res: Response) => {
     }
 }
 
-export const addComment = async (req: Request, res: Response) => {
+export const addComment = async (req: Request, res: Response): Promise<void> => {
     try {
-        const newData = await createComment(req.body, { id: 1, role: 'ADMIN' })
+        if (!req.user) {
+            console.log("Kullanıcı:", req.user);
+             res.status(401).json({ message: "Unauthorized!!!" });
+             return;
+        }
+        const newData = await createComment(req.body, req.user);
         res.status(202).json(newData);
     } catch (error) {
         console.log(error);
@@ -40,7 +45,12 @@ export const addComment = async (req: Request, res: Response) => {
 export const editComment = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-        const updateData = await updateComment(Number(id), req.body, { id: 1, role: 'ADMIN' })
+        if (!req.user) {
+            console.log("Kullanıcı:", req.user);
+             res.status(401).json({ message: "Unauthorized!!!" });
+             return;
+        }
+        const updateData = await updateComment(Number(id), req.body, req.user);
         res.json(updateData)
     } catch (error) {
         console.log(error);
@@ -48,10 +58,15 @@ export const editComment = async (req: Request, res: Response) => {
     }
 }
 
-export const removeComment = async (req: Request, res: Response) => {
+export const removeComment = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params
     try {
-        const deleteData = await deleteComment(Number(id), { id: 1, role: 'ADMIN' });
+        if (!req.user) {
+            console.log("Kullanıcı:", req.user);
+             res.status(401).json({ message: "Unauthorized!!" });
+             return;
+        }
+        const deleteData = await deleteComment(Number(id), req.user);
         res.json(deleteData)
     } catch (error) {
         console.log(error);

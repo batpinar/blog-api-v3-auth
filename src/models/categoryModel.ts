@@ -1,35 +1,26 @@
 import prisma from '../config/database.js';
-import { SHOW_DELETED_OPTIONS } from '../constants.js';
-import { PrismaClient, UserRole } from '@prisma/client';
+import { SHOW_DELETED_OPTIONS, USER_ROLE } from '../constants.js';
+import { UserRole } from '@prisma/client';
 
-/**
- * Tüm kategorileri getirir, silinmişleri dahil etmek için filtre uygular
- */
 export const getAllCategories = (showDeleted: string) => {
     return prisma.category.findMany(
             {
             where:
                 showDeleted === SHOW_DELETED_OPTIONS.ONLY_DELETED
-                    ? { deleted_at: { not: null } } // Sadece silinmişleri getir
+                    ? { deleted_at: { not: null } }
                     : showDeleted !== SHOW_DELETED_OPTIONS.ALL
-                    ? { deleted_at: null } // Sadece aktifleri getir
-                    : undefined, // Hepsini getir
+                    ? { deleted_at: null } 
+                    : undefined, 
         }
     );
 };
 
-/**
- * Belirli bir ID'ye sahip kategoriyi getirir
- */
 export const getCategoryById =  (id: number) => {
     return  prisma.category.findUnique({ where: { id }, });
 };
 
-/**
- * Yeni bir kategori oluşturur
- */
-export const createCategory =  (data: { name: string }, currentUser: { id: number; role: UserRole } ) => {
-    if(currentUser.role !== 'ADMIN'){
+export const createCategory =  (data: { name: string }, userRole: UserRole ) => {
+    if(userRole !== USER_ROLE.ADMIN){
         throw new Error('Forbidden');
     }
     return  prisma.category.create({
@@ -37,11 +28,8 @@ export const createCategory =  (data: { name: string }, currentUser: { id: numbe
     });
 };
 
-/**
- * Belirli bir kategoriyi günceller
- */
-export const updateCategory =  (id: number, data: { name: string }, currentUser: { id: number; role: UserRole } ) => {
-    if(currentUser.role !== 'ADMIN'){
+export const updateCategory =  (id: number, data: { name: string }, userRole: UserRole ) => {
+    if(userRole !== USER_ROLE.ADMIN){
         throw new Error('Forbidden');
     }
     return  prisma.category.update({
@@ -50,11 +38,8 @@ export const updateCategory =  (id: number, data: { name: string }, currentUser:
     });
 };
 
-/**
- * Belirli bir kategoriyi soft delete olarak işaretler
- */
-export const deleteCategory =  (id: number, currentUser: { id: number; role: UserRole } ) => {
-    if(currentUser.role !== 'ADMIN'){
+export const deleteCategory =  (id: number, userRole: UserRole ) => {
+    if(userRole !== USER_ROLE.ADMIN){
         throw new Error('Forbidden');
     }
     return  prisma.category.update({
